@@ -1,8 +1,8 @@
 import pandas as pd
-from Constants.queries import INSERT_ISS_INFO_WAREHOUSE
+from Constants.queries import INSERT_ISS_INFO_WAREHOUSE, SELECT_ALL_FROM_ISS_WAREHOUSE
 
 class ISSWarehouse:
-    def __init__(self, dataframe):
+    def __init__(self, dataframe=None):
         self.dataframe = dataframe
 
     def convert_timestamp_to_datetime(self, column_name='timestamp'):
@@ -34,3 +34,18 @@ class ISSWarehouse:
             print("Data inserted into warehouse")
         finally:
             db_connector.close_connection()
+
+    def select_all_from_warehouse(self, db_connector):
+        """Select all data from the ISS warehouse table and return as a DataFrame"""
+        try:
+            db_connector.connect()
+            db_connector.cursor.execute(SELECT_ALL_FROM_ISS_WAREHOUSE)
+            result = db_connector.cursor.fetchall()
+            column_names = [desc[0] for desc in db_connector.cursor.description]
+
+            df = pd.DataFrame(result, columns=column_names)
+
+            return df
+        finally:
+            db_connector.close_connection()
+
