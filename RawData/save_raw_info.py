@@ -4,7 +4,7 @@ from api_manager import ISSSatelliteDetails
 from Constants.paths import PATH_TO_RAW_ISS_INFO_JSON
 
 
-def save_raw_iss_info(iss_info: json) -> None:
+def save_raw_iss_info() -> None:
     # Read existing data from the file or create an empty DataFrame
     try:
         with open(PATH_TO_RAW_ISS_INFO_JSON, 'r') as json_file:
