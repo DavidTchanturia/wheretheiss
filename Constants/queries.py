@@ -10,3 +10,5 @@ CREATE TABLE IF NOT EXISTS iss_25544_warehouse (
 INSERT_ISS_INFO_WAREHOUSE = f"""INSERT INTO iss_25544_warehouse (latitude, longitude, altitude, velocity, visibility, footprint, date, daynum, solar_lat, solar_lon, units)
 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
+
+SELECT_ALL_FROM_ISS_WAREHOUSE = """SELECT * FROM iss_25544_warehouse"""
