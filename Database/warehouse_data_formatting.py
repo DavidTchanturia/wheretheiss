@@ -18,7 +18,7 @@ class WarehouseDataFormating:
         self.normalized_dataframe = self.normalized_dataframe[["latitude", "longitude", "visibility", "date",
                                                                "current_location", "distance_travelled", "units"]]
 
-    def get_starting_ending_points(self):
+    def get_starting_ending_points(self) -> tuple:
         # I had to substract 4 hours because of the time difference in time zones
         current_timestamp = (datetime.now() - timedelta(hours=4)).strftime('%Y-%m-%d %H:%M:%S')
         five_minutes_ago = (datetime.strptime(current_timestamp, '%Y-%m-%d %H:%M:%S') - timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')
@@ -28,8 +28,8 @@ class WarehouseDataFormating:
         self.normalized_dataframe = ending_point
         return starting_point, ending_point
 
-    def distance_calculation_formula(self, lat1, lon1, lat2, lon2):
-        R = 6371.0
+    def distance_calculation_formula(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        earth_radius = 6371.0
 
         # Convert latitude and longitude from degrees to radians
         lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
@@ -43,11 +43,11 @@ class WarehouseDataFormating:
         c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
         # convert it to kilometers and round to 4 decimal points
-        distance = round(R * c, 4)
+        distance = round(earth_radius * c, 4)
 
         return distance
 
-    def calculate_travel_distance(self):
+    def calculate_travel_distance(self) -> None:
         starting_point, ending_point = self.get_starting_ending_points()
         lat1, lon1 = starting_point['latitude'], starting_point['longitude']
         lat2, lon2 = ending_point['latitude'],  ending_point['longitude']
@@ -55,12 +55,14 @@ class WarehouseDataFormating:
         distance = self.distance_calculation_formula(lat1, lon1, lat2, lon2)
         self.normalized_dataframe["distance_travelled"] = distance
 
-    def find_iss_location(self):
+    def find_iss_location(self) -> None:
         iss_location = ISSLocation()
         location = iss_location.get_location(self.normalized_dataframe["latitude"], self.normalized_dataframe["longitude"])
 
         self.normalized_dataframe["current_location"] = location
 
+
+# this function will be used to create df in ISSNormalizedDataframe class
 def just_for_test():
     obj = WarehouseDataFormating()
     obj.get_starting_ending_points()
