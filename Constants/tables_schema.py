@@ -22,6 +22,6 @@ ISS_25544_NORMALIZED_TABLE_SCHEMA = {
     'visibility': 'VARCHAR(25) NOT NULL',
     'date': 'TIMESTAMP NOT NULL',
     'current_location': 'VARCHAR(255)',
-    'distance_travelled': 'DECIMAL(15, 8) NOT NULL',
-    "units": "VARCHAR(2)"
+    'distance_travelled': 'DECIMAL(15, 4) NOT NULL',
+    'units': 'VARCHAR(2)'
 }
