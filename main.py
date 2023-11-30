@@ -25,7 +25,7 @@ def main():
     # Insert data into the warehouse
     warehouse_dataframe.insert_to_warehouse(db_connector)  # insert all the data
 
-    db_connector.close_connection() # the program will run while True, but I'll have close connection just in case
+    db_connector.close_connection()  # the program will run while True, but I'll have close connection just in case
 
 
 if __name__ == '__main__':
