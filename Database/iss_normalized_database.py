@@ -1,6 +1,12 @@
 from Database.DBManager import DatabaseConnector
-from Constants.queries import CREATE_ISS_NORMALIZED_TABLE, INSERT_INTO_NORMALIZED_TABLE
+from Constants.queries import CREATE_ISS_NORMALIZED_TABLE, INSERT_INTO_NORMALIZED_TABLE, CREATE_ECLIPSED_PARTITION, CREATE_DAYLIGHT_PARTITION
 from Database.warehouse_data_formatting import just_for_test
+from Logger.iss_logger import setup_logging
+import logging
+
+setup_logging()
+logger = logging.getLogger(__name__)
+
 
 class ISSNormalizedDatabase:
     def __init__(self, df=None):
@@ -8,16 +14,21 @@ class ISSNormalizedDatabase:
         self.connector = DatabaseConnector()
 
     def create_table_if_not_exists(self):
-        """create movies table if it does not exist"""
+        """Create 'iss_normalized' table if it does not exist."""
         try:
             self.connector.connect()
             self.connector.cursor.execute(CREATE_ISS_NORMALIZED_TABLE)
-            self.connector.connection.commit()
-            print("table created")
-        finally:
-            self.connector.close_connection()
+            self.connector.cursor.execute(CREATE_DAYLIGHT_PARTITION)
+            self.connector.cursor.execute(CREATE_ECLIPSED_PARTITION)
+
+            self.connector.connection.commit()  # Commit the creation of 'iss_normalized'
+            logger.info('Table "iss_normalized" created successfully')
+        except Exception as exception:
+            logger.error(f'Error creating table "iss_normalized": {exception}')
 
     def insert_into_normalized_table(self):
+        """cleaned up data is presented as pandas Series object
+        method inserts it in iss_normalized"""
         try:
             self.connector.connect()
 
@@ -32,6 +43,5 @@ class ISSNormalizedDatabase:
             )
             self.connector.cursor.execute(INSERT_INTO_NORMALIZED_TABLE, values)
             self.connector.connection.commit()
-            print("Data inserted into the table")
-        finally:
-            self.connector.close_connection()
+        except Exception as exception:
+            logger.error(f'Error creating table "iss_normalized": {exception}')
