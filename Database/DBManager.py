@@ -27,6 +27,7 @@ class DatabaseConnector:
             print(f"{error} encountered while closing connection")
 
 
+
 class ISSDataWarehouseManager:
     def __init__(self, db_connector):
         self.db_connector = db_connector
