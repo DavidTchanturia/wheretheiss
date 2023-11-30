@@ -1,5 +1,5 @@
-from DBManager import DatabaseConnector
-from iss_wearhouse import ISSWarehouse
+from Database.DBManager import DatabaseConnector
+from Database.iss_wearhouse import ISSWarehouse
 from GetData.get_iss_location import ISSLocation
 from datetime import datetime, timedelta
 from math import radians, sin, cos, atan2, sqrt
@@ -16,7 +16,7 @@ class WarehouseDataFormating:
 
         # at the same time rearange columns
         self.normalized_dataframe = self.normalized_dataframe[["latitude", "longitude", "visibility", "date",
-                                                               "current_location", "distance_traveled", "units"]]
+                                                               "current_location", "distance_travelled", "units"]]
 
     def get_starting_ending_points(self):
         # I had to substract 4 hours because of the time difference in time zones
@@ -53,7 +53,7 @@ class WarehouseDataFormating:
         lat2, lon2 = ending_point['latitude'],  ending_point['longitude']
 
         distance = self.distance_calculation_formula(lat1, lon1, lat2, lon2)
-        self.normalized_dataframe["distance_traveled"] = distance
+        self.normalized_dataframe["distance_travelled"] = distance
 
     def find_iss_location(self):
         iss_location = ISSLocation()
@@ -61,11 +61,11 @@ class WarehouseDataFormating:
 
         self.normalized_dataframe["current_location"] = location
 
-
-obj = WarehouseDataFormating()
-obj.get_starting_ending_points()
-obj.calculate_travel_distance()
-obj.find_iss_location()
-obj.clean_up_dataframe()
-print(obj.normalized_dataframe)
+def just_for_test():
+    obj = WarehouseDataFormating()
+    obj.get_starting_ending_points()
+    obj.calculate_travel_distance()
+    obj.find_iss_location()
+    obj.clean_up_dataframe()
+    return obj.normalized_dataframe
 
