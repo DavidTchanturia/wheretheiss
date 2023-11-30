@@ -8,3 +8,4 @@ PROJECT_DIRECTORY = os.path.dirname(CURRENT_FILE_DIRECTORY)  # in this case wher
 # add other inside paths to absolute path of wheretheiss
 PATH_TO_RAW_ISS_INFO_JSON = os.path.join(PROJECT_DIRECTORY, 'RawData', 'raw_iss_info.json')
 PATH_TO_DATABASE_VARIABLES_YAML = os.path.join(PROJECT_DIRECTORY, 'database_config.yaml')
+LOGGER_FILE_LOG_PATH = os.path.join(PROJECT_DIRECTORY, 'Logger', 'iss.log')
