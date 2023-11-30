@@ -1,5 +1,5 @@
 import pandas as pd
-from Constants.queries import INSERT_ISS_INFO_WAREHOUSE, SELECT_ALL_FROM_ISS_WAREHOUSE
+from Constants.queries import INSERT_ISS_INFO_WAREHOUSE, SELECT_ALL_FROM_ISS_WAREHOUSE, SELECT_DATA_IN_RANGE_QUERY
 
 class ISSWarehouse:
     def __init__(self, dataframe=None):
@@ -49,3 +49,31 @@ class ISSWarehouse:
         finally:
             db_connector.close_connection()
 
+    def select_data_in_range(self, five_minutes_ago, current_timestamp, db_connector):
+        """Select data from the ISS warehouse table within the specified date range"""
+        try:
+            db_connector.connect()
+
+            # Ensure start_timestamp and end_timestamp are in datetime format
+            start_timestamp = pd.to_datetime(five_minutes_ago, format='%Y-%m-%d %H:%M:%S')
+            end_timestamp = pd.to_datetime(current_timestamp, format='%Y-%m-%d %H:%M:%S')
+
+            # Select data within the specified date range
+            query = SELECT_DATA_IN_RANGE_QUERY.format(five_minutes_ago=start_timestamp, current_timestamp=end_timestamp)
+            db_connector.cursor.execute(query)
+            result = db_connector.cursor.fetchall()
+            column_names = [desc[0] for desc in db_connector.cursor.description]
+
+            df = pd.DataFrame(result, columns=column_names)
+
+            # Find the rows with the lowest and highest timestamp
+            if not df.empty:
+                starting_point = df.loc[df['date'].idxmin()]
+                ending_point = df.loc[df['date'].idxmax()]
+
+                return starting_point, ending_point
+            else:
+                return pd.DataFrame(), pd.DataFrame()
+
+        finally:
+            db_connector.close_connection()
