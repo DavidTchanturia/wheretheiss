@@ -1,6 +1,6 @@
 from Database.DBManager import DatabaseConnector
 from Constants.queries import CREATE_ISS_NORMALIZED_TABLE, INSERT_INTO_NORMALIZED_TABLE, CREATE_ECLIPSED_PARTITION, CREATE_DAYLIGHT_PARTITION
-from Database.warehouse_data_formatting import just_for_test
+from Database.warehouse_data_formatting import create_normalized_df
 from Logger.iss_logger import setup_logging
 import logging
 
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class ISSNormalizedDatabase:
     def __init__(self, df=None):
-        self.df = just_for_test()
+        self.df = create_normalized_df()
         self.connector = DatabaseConnector()
 
     def create_table_if_not_exists(self):
@@ -43,5 +43,6 @@ class ISSNormalizedDatabase:
             )
             self.connector.cursor.execute(INSERT_INTO_NORMALIZED_TABLE, values)
             self.connector.connection.commit()
+            print("inserted in table iss_normalized")
         except Exception as exception:
             logger.error(f'Error creating table "iss_normalized": {exception}')
