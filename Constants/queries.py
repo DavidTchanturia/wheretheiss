@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS iss_normalized (
 # creates eclipsed partition
 CREATE_ECLIPSED_PARTITION = """
 CREATE TABLE IF NOT EXISTS iss_normalized_partition_0 PARTITION OF iss_normalized
-    FOR VALUES FROM (MINVALUE) TO (0);
+    FOR VALUES FROM (MINVALUE) TO (1);
 """
 
 # creates daylight partition
