@@ -32,8 +32,7 @@ class WarehouseDataFormating:
         """ starting point is the column with the min timestamp in the selected range
             ending point is the column with the max timestamp in the selected range"""
         try:
-            # I had to substract 4 hours because of the time difference in time zones
-            current_timestamp = (datetime.now() - timedelta(hours=4)).strftime('%Y-%m-%d %H:%M:%S')
+            current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             five_minutes_ago = (datetime.strptime(current_timestamp, '%Y-%m-%d %H:%M:%S') - timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')
             # print(current_timestamp,five_minutes_ago)
             starting_point, ending_point = self.iss_warehouse.select_data_in_range(five_minutes_ago, current_timestamp, self.connector)
