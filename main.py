@@ -1,35 +1,36 @@
-from RawData.save_raw_info import ISSSatelliteDetails
-from Database.iss_wearhouse import ISSWarehouse
-from Database.DBManager import DatabaseConnector, ISSDataWarehouseManager
-from RawData.save_raw_info import save_raw_iss_info
+import threading
 import time
+from Modules.json_module import run_json_module
+from Modules.warehouse_module import run_warehouse_module
+from Modules.iss_insertion_module import run_iss_insertion_module
 
-db_connector = DatabaseConnector()
+"""main.py will be creating three main threads for three parts of the program
+run_json_module -> saves raw data in json file
 
-# if warehouse table does not exist, create one
-data_warehouse_manager = ISSDataWarehouseManager(db_connector)
-data_warehouse_manager.create_table()
+run_warehouse_module -> starts running after 2 minutes and saves data to warehouse from raw json
+every two minutes
 
+run_iss_insertion_module -> starts running after 5 minutes and saves data from warehouse to
+iss_normalized table where some calculation and changes have been made
+
+threads will run independently of each other. only once will they wait for each other to start running
+in the beginning"""
 
 def main():
+    # Sstart json thread
+    json_thread = threading.Thread(target=run_json_module)
+    json_thread.start()
 
-    # initialize object to get details later
-    dataframe = ISSSatelliteDetails()
-    save_raw_iss_info()  # save the raw info in json file
-    dataframe = dataframe.get_satellite_details()  # get iss details from wheretheiss api as pd dataframe
+    # warehouse thread after 2 minutes
+    time.sleep(120)
+    warehouse_thread = threading.Thread(target=run_warehouse_module)
+    warehouse_thread.start()
 
-    # modify data to be inserted in warehouse
-    warehouse_dataframe = ISSWarehouse(dataframe)
-    warehouse_dataframe.convert_timestamp_to_datetime()  # timestamp -> datetime
-    warehouse_dataframe.change_kilometer()  # changes kilometers -> km
-
-    # Insert data into the warehouse
-    warehouse_dataframe.insert_to_warehouse(db_connector)  # insert all the data
+    # iss_normalized thread after 5 minutes of json thread
+    time.sleep(180)  # 180 + 120 = 300
+    iss_table_thread = threading.Thread(target=run_iss_insertion_module)
+    iss_table_thread.start()
 
 
-
-if __name__ == '__main__':
-    while True:
-        main()
-        time.sleep(2)
-
+if __name__ == "__main__":
+    main()
