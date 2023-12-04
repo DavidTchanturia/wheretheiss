@@ -19,3 +19,7 @@ def run_warehouse_module():
         obj.change_kilometer()  # change kilometers -> km
         obj.insert_to_warehouse(db_connector)  # insert into iss_24455_warehouse
         time.sleep(120)  # run every two minutes
+
+
+# set this up for bash script to run the funcion
+run_warehouse_module()
