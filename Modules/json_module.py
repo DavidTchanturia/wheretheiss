@@ -1,6 +1,7 @@
 from RawData.save_raw_info import save_raw_iss_info
 import time
 
+
 def run_json_module():
     """this module is responsible for saving raw data into raw_iss_info.json
 
@@ -9,4 +10,6 @@ def run_json_module():
         save_raw_iss_info()
         time.sleep(2)
 
+
+# set this up for bash script to run the function
 run_json_module()
