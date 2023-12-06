@@ -51,7 +51,6 @@ INSERT INTO iss_normalized (latitude, longitude, visibility, date, current_locat
 VALUES (%s, %s, CASE WHEN %s = 'daylight' THEN 1 ELSE 0 END, %s, %s, %s, %s)
 """
 
-SELECT_ALL_FROM_ISS_WAREHOUSE = """SELECT * FROM iss_25544_warehouse"""
-
 # selects data that are in between two timestamps based on columns own timestamp
-SELECT_DATA_IN_RANGE_QUERY = "SELECT * FROM iss_25544_warehouse WHERE date BETWEEN '{five_minutes_ago}' AND '{current_timestamp}'"
+SELECT_DATA_IN_RANGE_QUERY = """SELECT latitude, longitude, visibility, date
+                                FROM iss_25544_warehouse WHERE date BETWEEN '{five_minutes_ago}' AND '{current_timestamp}'"""
