@@ -1,5 +1,6 @@
 from Database.DBManager import DatabaseConnector
 from Constants.queries import CREATE_ISS_NORMALIZED_TABLE, INSERT_INTO_NORMALIZED_TABLE, CREATE_ECLIPSED_PARTITION, CREATE_DAYLIGHT_PARTITION
+from Constants.variables import DISTANCE_UNIT
 from Database.warehouse_data_formatting import create_normalized_df
 from Logger.iss_logger import setup_logging
 import logging
@@ -9,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class ISSNormalizedDatabase:
-    def __init__(self, df=None):
+    def __init__(self):
         self.df = create_normalized_df()
         self.connector = DatabaseConnector()
 
@@ -39,7 +40,7 @@ class ISSNormalizedDatabase:
                 self.df['date'],
                 self.df['current_location'],
                 self.df['distance_travelled'],
-                "km"
+                DISTANCE_UNIT
             )
             self.connector.cursor.execute(INSERT_INTO_NORMALIZED_TABLE, values)
             self.connector.connection.commit()
