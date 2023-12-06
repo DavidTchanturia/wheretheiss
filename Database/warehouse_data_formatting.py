@@ -19,12 +19,12 @@ class WarehouseDataFormating:
     def clean_up_dataframe(self) -> None:
         """remove unnecessary rows from warehouse df, only leave ones for normalized table, rearange them"""
         try:
-            self.normalized_dataframe.drop(["id", "altitude", "velocity", "footprint", "daynum",
-                                            "solar_lat", "solar_lon"], inplace=True)
+            # self.normalized_dataframe.drop(["id", "altitude", "velocity", "footprint", "daynum",
+            #                                 "solar_lat", "solar_lon"], inplace=True)
 
             # at the same time rearange columns
             self.normalized_dataframe = self.normalized_dataframe[["latitude", "longitude", "visibility", "date",
-                                                                   "current_location", "distance_travelled", "units"]]
+                                                                   "current_location", "distance_travelled"]]
         except Exception as exception:
             logger.error(f"exception occured: {exception}")
 
@@ -34,7 +34,6 @@ class WarehouseDataFormating:
         try:
             current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             five_minutes_ago = (datetime.strptime(current_timestamp, '%Y-%m-%d %H:%M:%S') - timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')
-            # print(current_timestamp,five_minutes_ago)
             starting_point, ending_point = self.iss_warehouse.select_data_in_range(five_minutes_ago, current_timestamp, self.connector)
 
             self.normalized_dataframe = ending_point
