@@ -1,4 +1,5 @@
 import pandas as pd
+from Constants.variables import EARTH_RADIUS
 from Database.DBManager import DatabaseConnector
 from Database.iss_wearhouse import ISSWarehouse
 from GetData.get_iss_location import ISSLocation
@@ -45,8 +46,6 @@ class WarehouseDataFormating:
     def distance_calculation_formula(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """general formula to calculate distance travelled using lan and lon"""
         try:
-            earth_radius = 6371.0
-
             # Convert latitude and longitude from degrees to radians
             lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
 
@@ -59,7 +58,7 @@ class WarehouseDataFormating:
             c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
             # convert it to kilometers and round to 4 decimal points
-            distance = round(earth_radius * c, 4)
+            distance = round(EARTH_RADIUS * c, 4)
 
             return distance
 
