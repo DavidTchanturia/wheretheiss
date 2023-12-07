@@ -1,4 +1,4 @@
-from Constants.tables_schema import ISS_25544_WAREHOUSE_SCHEMA, ISS_25544_NORMALIZED_TABLE_SCHEMA
+from Constants.tables_schema import ISS_25544_WAREHOUSE_SCHEMA
 
 
 CREATE_ISS_WAREHOUSE_TABLE = f"""
@@ -6,13 +6,6 @@ CREATE TABLE IF NOT EXISTS iss_25544_warehouse (
     {', '.join(f'{column} {data_type}' for column, data_type in ISS_25544_WAREHOUSE_SCHEMA.items())}
 );
 """
-
-# I could not include check here so have to wrtie a whole query
-# CREATE_ISS_NORMALIZED_TABLE = f"""
-# CREATE TABLE IF NOT EXISTS iss_normalized (
-#     {', '.join(f'{column} {data_type}' for column, data_type in ISS_25544_NORMALIZED_TABLE_SCHEMA.items())}
-# );
-# """
 
 # converted "daylight", "eclipsed" to 1, 0 to partition using range
 CREATE_ISS_NORMALIZED_TABLE = """
