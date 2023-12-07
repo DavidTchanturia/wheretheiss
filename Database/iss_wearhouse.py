@@ -1,5 +1,7 @@
 import pandas as pd
-from Constants.queries import INSERT_ISS_INFO_WAREHOUSE, SELECT_DATA_IN_RANGE_QUERY
+import psycopg2
+
+from Constants.queries import INSERT_ISS_INFO_WAREHOUSE, SELECT_DATA_IN_RANGE_QUERY, CREATE_ISS_WAREHOUSE_TABLE
 from Constants.paths import PATH_TO_RAW_ISS_INFO_JSON
 from Logger.iss_logger import setup_logging
 import logging
@@ -67,6 +69,11 @@ class JsonToWarehouse:
             db_connector.connection.commit()
 
             print(" all the rows inserted in iss_24455_warehouse")
+        except psycopg2.errors.UndefinedTable as e:
+            db_connector.connect()
+            db_connector.cursor.execute(CREATE_ISS_WAREHOUSE_TABLE)
+            db_connector.connection.commit()
+            self._insert_to_warehouse(db_connector) # call the function again
         except Exception as exception:
             logger.error(f'exception while inserting data into warehouse: {exception}')
 
