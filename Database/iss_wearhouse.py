@@ -1,5 +1,6 @@
 import pandas as pd
 from Constants.queries import INSERT_ISS_INFO_WAREHOUSE, SELECT_DATA_IN_RANGE_QUERY
+from Constants.paths import PATH_TO_RAW_ISS_INFO_JSON
 from Logger.iss_logger import setup_logging
 import logging
 from datetime import datetime
@@ -12,31 +13,25 @@ logger = logging.getLogger(__name__)
 class ISSWarehouse:
     def __init__(self, dataframe=None):
         self.dataframe = dataframe
-        self.last_timestamp_retrieved = None # will use this to select parts of ra json file
+        self.last_timestamp_retrieved = None  # will use this to select parts of raw json file
 
-    def load_data_from_json(self, path_to_json: str) -> None:
-        """loads json data as pandas dataframe"""
-        with open(path_to_json, 'r') as json_file:
-            raw_data = json.load(json_file)
 
-        self.dataframe = pd.DataFrame(raw_data)
-
-    def select_data_from_json(self, path_to_json: str) -> None:
+    def select_data_from_json(self, path_to_json: str = PATH_TO_RAW_ISS_INFO_JSON) -> None:
         """select specific part of data from json file
         those that have not been inserted to database yet"""
         try:
-            self.load_data_from_json(path_to_json)
+            self.dataframe = pd.read_json(path_to_json)
             self.convert_timestamp_to_datetime()
-            current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S') # update timestamp in both cases
+            current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # update timestamp in both cases
             # Load data from JSON file
             if self.last_timestamp_retrieved is None:
-                self.last_timestamp_retrieved = current_timestamp # it timestamp is None, means we need all the data
+                self.last_timestamp_retrieved = current_timestamp  # it timestamp is None, means we need all the data
             else:
                 self.dataframe = self.dataframe[
                     (self.dataframe["timestamp"] > self.last_timestamp_retrieved) &
                     (self.dataframe["timestamp"] < current_timestamp)
                     ]
-                self.last_timestamp_retrieved = current_timestamp # if not None, select data between timestampt and current time
+                self.last_timestamp_retrieved = current_timestamp  # if not None, select data between timestampt and current time
 
         except Exception as exception:
             logger.error(f'Error selecting and updating timestamp: {exception}')
@@ -46,11 +41,6 @@ class ISSWarehouse:
         """Convert timestamp to datetime in the specified column and add 4 hours"""
         try:
             if column_name in self.dataframe.columns:
-                # some of the rows have invalid timestamp, taht is out of range
-                invalid_mask = (self.dataframe['timestamp'] <= 0) | (
-                        self.dataframe['timestamp'] > pd.Timestamp.now().timestamp())
-                self.dataframe = self.dataframe.loc[~invalid_mask] # I drop those rows
-
                 # convert to datetime
                 self.dataframe['timestamp'] = pd.to_datetime(self.dataframe['timestamp'], unit='s', utc=True)
 
