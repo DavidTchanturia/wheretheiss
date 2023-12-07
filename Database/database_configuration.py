@@ -7,7 +7,7 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 
-# simply parse yaml to get database configruration details
+# simply parse yaml to get database configuration details
 def parse_yaml(file_path=PATH_TO_DATABASE_VARIABLES_YAML):
     try:
         with open(file_path, 'r') as file:
