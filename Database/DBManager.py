@@ -15,7 +15,7 @@ class DatabaseConnector:
 
     # connect to the database
     def connect(self):
-        """connects to iss datbase"""
+        """connects to iss database"""
         try:
             parameters = parse_yaml()
             self.connection = psycopg2.connect(**parameters)
@@ -23,13 +23,11 @@ class DatabaseConnector:
         except psycopg2.DatabaseError as error:
             logger.error(f"error while connecting: {error}")
 
-
     def close_connection(self):
         if self.connection:
             self.connection.close()
         if self.cursor:
             self.cursor.close()
-
 
 
 class ISSDataWarehouseManager:
