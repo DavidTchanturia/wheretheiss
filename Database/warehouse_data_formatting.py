@@ -1,7 +1,7 @@
 import pandas as pd
 from Constants.variables import EARTH_RADIUS
 from Database.DBManager import DatabaseConnector
-from Database.iss_wearhouse import ISSWarehouse
+from Database.iss_wearhouse import JsonToWarehouse
 from GetData.get_iss_location import ISSLocation
 from datetime import datetime, timedelta
 from math import radians, sin, cos, atan2, sqrt
@@ -11,10 +11,10 @@ import logging
 setup_logging()
 logger = logging.getLogger(__name__)
 
-class WarehouseDataFormating:
+class WarehouseDataFormatter:
     def __init__(self) -> None:
         self.connector = DatabaseConnector()
-        self.iss_warehouse = ISSWarehouse()
+        self.iss_warehouse = JsonToWarehouse()
         self.normalized_dataframe = None
 
     def _clean_up_dataframe(self) -> None:
@@ -79,7 +79,7 @@ class WarehouseDataFormating:
 
     @staticmethod
     def wrapper_function() -> pd.DataFrame:
-        obj = WarehouseDataFormating()
+        obj = WarehouseDataFormatter()
         obj._get_starting_ending_points()
         obj._calculate_travel_distance()
         obj._find_iss_location()
