@@ -4,28 +4,26 @@ from Constants.paths import PATH_TO_RAW_ISS_INFO_JSON
 from Logger.iss_logger import setup_logging
 import logging
 from datetime import datetime
-import json
 
 setup_logging()
 logger = logging.getLogger(__name__)
 
 
-class ISSWarehouse:
+class JsonToWarehouse:
     def __init__(self, dataframe=None):
         self.dataframe = dataframe
         self.last_timestamp_retrieved = None  # will use this to select parts of raw json file
 
-
-    def select_data_from_json(self, path_to_json: str = PATH_TO_RAW_ISS_INFO_JSON) -> None:
+    def _select_data_from_json(self, path_to_json: str = PATH_TO_RAW_ISS_INFO_JSON) -> None:
         """select specific part of data from json file
         those that have not been inserted to database yet"""
         try:
             self.dataframe = pd.read_json(path_to_json)
-            self.convert_timestamp_to_datetime()
+            self._convert_timestamp_to_datetime()
             current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # update timestamp in both cases
             # Load data from JSON file
             if self.last_timestamp_retrieved is None:
-                self.last_timestamp_retrieved = current_timestamp  # it timestamp is None, means we need all the data
+                self.last_timestamp_retrieved = current_timestamp  # its timestamp is None, means we need all the data
             else:
                 self.dataframe = self.dataframe[
                     (self.dataframe["timestamp"] > self.last_timestamp_retrieved) &
@@ -36,8 +34,7 @@ class ISSWarehouse:
         except Exception as exception:
             logger.error(f'Error selecting and updating timestamp: {exception}')
 
-
-    def convert_timestamp_to_datetime(self, column_name='timestamp') -> pd.DataFrame:
+    def _convert_timestamp_to_datetime(self, column_name='timestamp') -> pd.DataFrame:
         """Convert timestamp to datetime in the specified column and add 4 hours"""
         try:
             if column_name in self.dataframe.columns:
@@ -56,12 +53,11 @@ class ISSWarehouse:
         except Exception as exception:
             logger.error(f'Error converting timestamp to datetime: {exception}')
 
-
-    def change_kilometer(self) -> None:
+    def _change_kilometer(self) -> None:
         """simply change kilometers to km"""
         self.dataframe["units"] = 'km'
 
-    def insert_to_warehouse(self, db_connector) -> None:
+    def _insert_to_warehouse(self, db_connector) -> None:
         """insert DataFrame into the ISS warehouse table"""
         try:
             db_connector.connect()
@@ -74,7 +70,8 @@ class ISSWarehouse:
         except Exception as exception:
             logger.error(f'exception while inserting data into warehouse: {exception}')
 
-    def select_data_in_range(self, five_minutes_ago: datetime, current_timestamp: datetime, db_connector) -> tuple[pd.DataFrame, pd.DataFrame]:
+    @staticmethod
+    def select_data_in_range(five_minutes_ago: datetime, current_timestamp: datetime, db_connector) -> tuple[pd.DataFrame, pd.DataFrame]:
         """two arguments are timestamp when the method is called and timestamp 5 min before
         based on that method selects all the data in that range"""
         try:
@@ -103,3 +100,8 @@ class ISSWarehouse:
 
         finally:
             db_connector.close_connection()
+
+    def get_warehouse_data_wrapper(self, db_connector):
+        self._select_data_from_json(PATH_TO_RAW_ISS_INFO_JSON)  # selects data that has not been inserted to warehouse
+        self._change_kilometer()  # change kilometers -> km
+        self._insert_to_warehouse(db_connector)  # insert into iss_24455_warehouse
