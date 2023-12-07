@@ -18,5 +18,3 @@ def parse_yaml(file_path=PATH_TO_DATABASE_VARIABLES_YAML):
         logger.error(f"file can not be found on the path specified: {error}")
     except yaml.YAMLError as error:
         logger.error(f"yaml error: {error}")
-    except Exception as exception:
-        logger.error(f"exception occured while parsing yaml folder: {exception}")
