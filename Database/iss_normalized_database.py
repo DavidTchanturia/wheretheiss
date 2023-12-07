@@ -1,7 +1,7 @@
 from Database.DBManager import DatabaseConnector
 from Constants.queries import CREATE_ISS_NORMALIZED_TABLE, INSERT_INTO_NORMALIZED_TABLE, CREATE_ECLIPSED_PARTITION, CREATE_DAYLIGHT_PARTITION
 from Constants.variables import DISTANCE_UNIT
-from Database.warehouse_data_formatting import create_normalized_df
+from Database.warehouse_data_formatting import WarehouseDataFormating
 from Logger.iss_logger import setup_logging
 import logging
 
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class ISSNormalizedDatabase:
     def __init__(self):
-        self.df = create_normalized_df()
+        self.df = WarehouseDataFormating().wrapper_function()
         self.connector = DatabaseConnector()
 
     def create_table_if_not_exists(self):
