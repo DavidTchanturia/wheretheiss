@@ -1,3 +1,5 @@
+import psycopg2
+
 from Database.DBManager import DatabaseConnector
 from Constants.queries import CREATE_ISS_NORMALIZED_TABLE, INSERT_INTO_NORMALIZED_TABLE, CREATE_ECLIPSED_PARTITION, CREATE_DAYLIGHT_PARTITION
 from Constants.variables import DISTANCE_UNIT
@@ -45,5 +47,18 @@ class WarehouseToIssTable:
             self.connector.cursor.execute(INSERT_INTO_NORMALIZED_TABLE, values)
             self.connector.connection.commit()
             print("inserted in table iss_normalized")
+        except psycopg2.errors.UndefinedTable as e:
+
+            # if the table does not exist. gives us error, create the table
+            self.connector.connect()
+            self.connector.cursor.execute(CREATE_ISS_NORMALIZED_TABLE)
+            self.connector.cursor.execute(CREATE_DAYLIGHT_PARTITION)
+            self.connector.cursor.execute(CREATE_ECLIPSED_PARTITION)
+
+            self.connector.connection.commit()  # Commit the creation of 'iss_normalized'
+            logger.info('Table "iss_normalized" created successfully')
+
+            # call the function again
+            self.insert_into_normalized_table()
         except Exception as exception:
             logger.error(f'Error creating table "iss_normalized": {exception}')
