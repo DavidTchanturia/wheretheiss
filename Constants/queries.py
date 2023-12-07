@@ -2,14 +2,14 @@ from Constants.tables_schema import ISS_25544_WAREHOUSE_SCHEMA
 
 
 CREATE_ISS_WAREHOUSE_TABLE = f"""
-CREATE TABLE IF NOT EXISTS iss_25544_warehouse (
+CREATE TABLE iss_25544_warehouse (
     {', '.join(f'{column} {data_type}' for column, data_type in ISS_25544_WAREHOUSE_SCHEMA.items())}
 );
 """
 
 # converted "daylight", "eclipsed" to 1, 0 to partition using range
 CREATE_ISS_NORMALIZED_TABLE = """
-CREATE TABLE IF NOT EXISTS iss_normalized (
+CREATE TABLE iss_normalized (
     id SERIAL,
     latitude DECIMAL(10, 6) NOT NULL,
     longitude DECIMAL(10, 6) NOT NULL,
