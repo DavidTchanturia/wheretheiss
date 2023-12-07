@@ -29,13 +29,3 @@ class DatabaseConnector:
         if self.cursor:
             self.cursor.close()
 
-
-class ISSDataWarehouseManager:
-    def __init__(self, db_connector):
-        self.db_connector = db_connector
-
-    def create_table(self):
-        """create movies table if it does not exist"""
-        self.db_connector.connect()
-        self.db_connector.cursor.execute(CREATE_ISS_WAREHOUSE_TABLE)
-        self.db_connector.connection.commit()
