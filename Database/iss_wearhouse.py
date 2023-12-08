@@ -19,41 +19,35 @@ class JsonToWarehouse:
     def _select_data_from_json(self, path_to_json: str = PATH_TO_RAW_ISS_INFO_JSON) -> None:
         """select specific part of data from json file
         those that have not been inserted to database yet"""
-        try:
-            self.dataframe = pd.read_json(path_to_json)
-            self._convert_timestamp_to_datetime()
-            current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # update timestamp in both cases
-            # Load data from JSON file
-            if self.last_timestamp_retrieved is None:
-                self.last_timestamp_retrieved = current_timestamp  # its timestamp is None, means we need all the data
-            else:
-                self.dataframe = self.dataframe[
-                    (self.dataframe["timestamp"] > self.last_timestamp_retrieved) &
-                    (self.dataframe["timestamp"] < current_timestamp)
-                    ]
-                self.last_timestamp_retrieved = current_timestamp  # if not None, select data between timestampt and current time
 
-        except Exception as exception:
-            logger.error(f'Error selecting and updating timestamp: {exception}')
+        self.dataframe = pd.read_json(path_to_json)
+        self._convert_timestamp_to_datetime()
+        current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # update timestamp in both cases
+        # Load data from JSON file
+        if self.last_timestamp_retrieved is None:
+            self.last_timestamp_retrieved = current_timestamp  # its timestamp is None, means we need all the data
+        else:
+            self.dataframe = self.dataframe[
+                (self.dataframe["timestamp"] > self.last_timestamp_retrieved) &
+                (self.dataframe["timestamp"] < current_timestamp)
+                ]
+            self.last_timestamp_retrieved = current_timestamp  # if not None, select data between timestampt and current time
 
     def _convert_timestamp_to_datetime(self, column_name='timestamp') -> pd.DataFrame:
         """Convert timestamp to datetime in the specified column and add 4 hours"""
-        try:
-            if column_name in self.dataframe.columns:
-                # convert to datetime
-                self.dataframe['timestamp'] = pd.to_datetime(self.dataframe['timestamp'], unit='s', utc=True)
+        if column_name in self.dataframe.columns:
+            # convert to datetime
+            self.dataframe['timestamp'] = pd.to_datetime(self.dataframe['timestamp'], unit='s', utc=True)
 
-                # add 4 hours for time zone difference
-                self.dataframe['timestamp'] = self.dataframe['timestamp'] + pd.Timedelta(hours=4)
+            # add 4 hours for time zone difference
+            self.dataframe['timestamp'] = self.dataframe['timestamp'] + pd.Timedelta(hours=4)
 
-                # Format the timestamp as a string
-                self.dataframe['timestamp'] = self.dataframe['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S')
+            # Format the timestamp as a string
+            self.dataframe['timestamp'] = self.dataframe['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S')
 
-                return self.dataframe
-            else:
-                raise ValueError(f"Column '{column_name}' not found in the dataframe.")
-        except Exception as exception:
-            logger.error(f'Error converting timestamp to datetime: {exception}')
+            return self.dataframe
+        else:
+            raise ValueError(f"Column '{column_name}' not found in the dataframe.")
 
     def _change_kilometer(self) -> None:
         """simply change kilometers to km"""
@@ -74,8 +68,7 @@ class JsonToWarehouse:
             db_connector.cursor.execute(CREATE_ISS_WAREHOUSE_TABLE)
             db_connector.connection.commit()
             self._insert_to_warehouse(db_connector) # call the function again
-        except Exception as exception:
-            logger.error(f'exception while inserting data into warehouse: {exception}')
+
 
     @staticmethod
     def select_data_in_range(five_minutes_ago: datetime, current_timestamp: datetime, db_connector) -> tuple[pd.DataFrame, pd.DataFrame]:
