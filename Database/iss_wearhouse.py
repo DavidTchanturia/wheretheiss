@@ -1,14 +1,8 @@
 import pandas as pd
 import psycopg2
-
 from Constants.queries import INSERT_ISS_INFO_WAREHOUSE, SELECT_DATA_IN_RANGE_QUERY, CREATE_ISS_WAREHOUSE_TABLE
 from Constants.paths import PATH_TO_RAW_ISS_INFO_JSON
-from Logger.iss_logger import setup_logging
-import logging
 from datetime import datetime
-
-setup_logging()
-logger = logging.getLogger(__name__)
 
 
 class JsonToWarehouse:
@@ -49,10 +43,6 @@ class JsonToWarehouse:
         else:
             raise ValueError(f"Column '{column_name}' not found in the dataframe.")
 
-    def _change_kilometer(self) -> None:
-        """simply change kilometers to km"""
-        self.dataframe["units"] = 'km'
-
     def _insert_to_warehouse(self, db_connector) -> None:
         """insert DataFrame into the ISS warehouse table"""
         try:
@@ -68,7 +58,6 @@ class JsonToWarehouse:
             db_connector.cursor.execute(CREATE_ISS_WAREHOUSE_TABLE)
             db_connector.connection.commit()
             self._insert_to_warehouse(db_connector) # call the function again
-
 
     @staticmethod
     def select_data_in_range(five_minutes_ago: datetime, current_timestamp: datetime, db_connector) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -103,5 +92,5 @@ class JsonToWarehouse:
 
     def get_warehouse_data_wrapper(self, db_connector):
         self._select_data_from_json(PATH_TO_RAW_ISS_INFO_JSON)  # selects data that has not been inserted to warehouse
-        self._change_kilometer()  # change kilometers -> km
+        self.dataframe["units"] = 'km'  # change kilometers -> km
         self._insert_to_warehouse(db_connector)  # insert into iss_24455_warehouse
