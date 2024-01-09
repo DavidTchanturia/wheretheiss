@@ -8,7 +8,7 @@ def run_json_module():
     sends request to api every 2 seconds. because every second times out"""
     while True:
         save_raw_iss_info()
-        time.sleep(1)
+        time.sleep(2)
 
 
 # set this up for bash script to run the function
