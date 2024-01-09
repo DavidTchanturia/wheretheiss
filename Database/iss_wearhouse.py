@@ -10,6 +10,11 @@ class JsonToWarehouse:
         self.dataframe = dataframe
         self.last_timestamp_retrieved = None  # will use this to select parts of raw json file
 
+    def create_iss_warehouse_table(self, db_connector):
+        db_connector.connect()
+        db_connector.cursor.execute(CREATE_ISS_WAREHOUSE_TABLE)
+        db_connector.connection.commit()
+
     def _select_data_from_json(self, path_to_json: str = PATH_TO_RAW_ISS_INFO_JSON) -> None:
         """select specific part of data from json file
         those that have not been inserted to database yet"""
@@ -17,6 +22,12 @@ class JsonToWarehouse:
         self.dataframe = pd.read_json(path_to_json)
         self._convert_timestamp_to_datetime()
         current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # update timestamp in both cases
+
+        # Add 4 hours to current_timestamp
+        current_timestamp = (
+                    pd.to_datetime(current_timestamp, format='%Y-%m-%d %H:%M:%S') + pd.Timedelta(hours=4)).strftime(
+            '%Y-%m-%d %H:%M:%S')
+
         # Load data from JSON file
         if self.last_timestamp_retrieved is None:
             self.last_timestamp_retrieved = current_timestamp  # its timestamp is None, means we need all the data
@@ -25,7 +36,7 @@ class JsonToWarehouse:
                 (self.dataframe["timestamp"] > self.last_timestamp_retrieved) &
                 (self.dataframe["timestamp"] < current_timestamp)
                 ]
-            self.last_timestamp_retrieved = current_timestamp  # if not None, select data between timestampt and current time
+            self.last_timestamp_retrieved = current_timestamp
 
     def _convert_timestamp_to_datetime(self, column_name='timestamp') -> pd.DataFrame:
         """Convert timestamp to datetime in the specified column and add 4 hours"""
@@ -54,9 +65,7 @@ class JsonToWarehouse:
 
             print(" all the rows inserted in iss_24455_warehouse")
         except psycopg2.errors.UndefinedTable as e:
-            db_connector.connect()
-            db_connector.cursor.execute(CREATE_ISS_WAREHOUSE_TABLE)
-            db_connector.connection.commit()
+
             self._insert_to_warehouse(db_connector) # call the function again
 
     @staticmethod
@@ -69,6 +78,9 @@ class JsonToWarehouse:
             # double check timestamp format
             start_timestamp = pd.to_datetime(five_minutes_ago, format='%Y-%m-%d %H:%M:%S')
             end_timestamp = pd.to_datetime(current_timestamp, format='%Y-%m-%d %H:%M:%S')
+
+            start_timestamp += pd.Timedelta(hours=4)
+            end_timestamp += pd.Timedelta(hours=4)
 
             # Select data within the specified date range
             query = SELECT_DATA_IN_RANGE_QUERY.format(five_minutes_ago=start_timestamp, current_timestamp=end_timestamp)

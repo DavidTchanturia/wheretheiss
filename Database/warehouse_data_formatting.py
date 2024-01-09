@@ -31,6 +31,7 @@ class WarehouseDataFormatter:
             ending point is the column with the max timestamp in the selected range"""
         current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         five_minutes_ago = (datetime.strptime(current_timestamp, '%Y-%m-%d %H:%M:%S') - timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')
+        # logger.log(f"==============================={current_timestamp}========={five_minutes_ago}")
         starting_point, ending_point = self.iss_warehouse.select_data_in_range(five_minutes_ago, current_timestamp, self.connector)
 
         self.normalized_dataframe = ending_point
@@ -59,7 +60,7 @@ class WarehouseDataFormatter:
             self.normalized_dataframe["current_location"] = location
 
     @staticmethod
-    def _distance_calculation_formula(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    def _distance_calculation_formula( lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """general formula to calculate distance travelled using lan and lon"""
         # Convert latitude and longitude from degrees to radians
         lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
